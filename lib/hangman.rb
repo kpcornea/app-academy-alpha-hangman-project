@@ -8,7 +8,7 @@ class Hangman
   def initialize
     @random_word = Hangman.random_word
     @secret_word = @random_word
-    @guess_word = Array.new(@random_word.length, "_")
+    @guess_word = Array.new(@secret_word.length, "_")
     @attempted_chars = []
     @remaining_incorrect_guesses = 5
   end
@@ -41,6 +41,51 @@ class Hangman
     arr.each { |i| @guess_word[i] = char }
   end
 
-end
+  def try_guess(char)
+    if already_attempted?(char)
+      puts "that has already been attempted"
+      return false
+    end
 
-# go back and review class stuff+. why sometimes self and sometimes Hangman? i think cuz in class scope, self refers to class. but in initialize method, self probs refers to new instance that's getting initialized. so have to specify Hangman not self. not 100% sure tho. review syntax for class method. i think if its just normal it's an instance method, for class method i need to do self.method_name but not 100% sure. # == instance method. :: == class method.
+    @attempted_chars << char
+    matches = get_matching_indices(char)
+
+    if matches == []
+      @remaining_incorrect_guesses -= 1
+    else
+      fill_indices(char, matches)
+    end
+
+    true
+  end
+
+  def ask_user_for_guess
+    puts "Enter a char:"
+    guess = gets.chomp
+    try_guess(guess)
+  end
+
+  def win?
+    if @guess_word.join == @secret_word
+      puts "WIN"
+      return true
+    end
+    false
+  end
+
+  def lose?
+    if @remaining_incorrect_guesses == 0
+      puts "LOSE"
+      return true
+    end
+    false
+  end
+
+  def game_over?
+    if win? || lose?
+      puts @secret_word
+      return true
+    end
+    false
+  end
+end
